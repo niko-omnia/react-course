@@ -10,8 +10,7 @@ const Part = ({ part }) => {
   return (
     <div>
       <h2>Name: {part.name}</h2>
-      <h3>Exercises: {part.exercises}</h3>
-      <br></br>
+      <p>Exercises: {part.exercises}</p>
     </div>
   )
 }
