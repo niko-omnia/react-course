@@ -41,7 +41,7 @@ const Persons = ({ persons, filter, deletePerson }) => {
   return (
     <div>
       {persons.map(person => {
-        if (filter.length > 0 & !person.name.toLocaleLowerCase().includes(filter.toLowerCase())) return
+        if (filter.length > 0 && !person.name.toLowerCase().includes(filter.toLowerCase())) return
         return (
           <p key={person.id}>
             {person.name} {person.number}
@@ -86,7 +86,7 @@ const App = () => {
   }
 
   const editPerson = (person) => {
-    if (persons.filter(p => p === person.id)) {
+    if (persons.find(p => p.id === person.id)) {
       if (!window.confirm(`${person.name} is already added to the phonebook, replace the old number with a new one?`)) return
       
       json_server.update(person.id, { name: person.name, number: newNumber, id: person.id })
@@ -114,8 +114,6 @@ const App = () => {
       return
     }
 
-    fetchPersons(setPersons)
-    
     const person = persons.find((person) => person.name === newName)
     if (person) {
       if (person.number !== newNumber) {
@@ -128,13 +126,13 @@ const App = () => {
       return
     }
 
-    json_server.create({ name: newName, number: newNumber, id: (persons.length + 1).toString() })
+    json_server.create({ name: newName, number: newNumber })
       .then(response => {
-        setPersons(prev => prev.concat(response.data))
-        setNewName('')
-        setNewNumber('')
+        setPersons(prev => [...prev, response.data])
         setSuccessMessage(`Added "${newName}" to the phonebook`)
         timeoutClear(setSuccessMessage, 5000)
+        setNewName('')
+        setNewNumber('')
       })
   }
 

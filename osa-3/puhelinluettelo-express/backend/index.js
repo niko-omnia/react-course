@@ -1,8 +1,10 @@
 const express = require('express');
 var morgan = require('morgan');
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 morgan.token("body", (req) => {
   return req.method === "POST" ? JSON.stringify(req.body) : "";
@@ -46,7 +48,7 @@ app.post('/api/persons', (req, res) => {
   if (name_exists) return res.status(400).json({ error: 'name must be unique' });
 
   persons.push(person);
-  return res.status(201).json(persons);
+  return res.status(201).json(person);
 });
 
 app.put('/api/persons/:id', (req, res) => {
@@ -55,11 +57,12 @@ app.put('/api/persons/:id', (req, res) => {
 
   if (!number || number === "") return res.status(400).json({error: "Number is required to update!"});
 
-  const person = persons.find((p) => p.id === id);
+  let person = persons.find((p) => p.id === id);
   if (!person) return res.status(400).json({error: "Invalid id!"});
+  person["number"] = number;
 
   persons = persons.map(p => p.id === id ? { ...p, number } : p)
-  return res.sendStatus(200);
+  return res.status(200).json(person);
 });
 
 app.get('/api/persons/:id', (req, res) => {
