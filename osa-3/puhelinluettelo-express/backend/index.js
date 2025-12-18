@@ -60,16 +60,6 @@ app.delete('/api/persons/:id', (req, res) => {
     return res.sendStatus(404);
   }
 });
-app.delete('/api/persons/:id', (req, res) => {
-  const { id } = req.params;
-  const person = persons.find((p) => p.id === id);
-  if (person) {
-    persons.pop(person);
-    return res.status(200).json(person);
-  } else {
-    return res.sendStatus(404);
-  }
-});
 
 app.get('/api/info', (req, res) => {
   res.send(`Phonebook has info for ${persons.length} people.<br></br>${new Date(Date.now())}`);
