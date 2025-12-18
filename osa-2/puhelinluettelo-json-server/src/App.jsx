@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import json_server from "./services/json_server.js"
 
 const Filter = ({ set }) => {
   return (
@@ -42,17 +43,14 @@ const Persons = ({ persons, filter }) => {
   )
 }
 
-const fetchPersons = async (setPersons) => {
-  const persons_req = await fetch("http://localhost:3000/persons")
-  const data = await persons_req.json()
-  setPersons(data)
-}
-
 const App = () => {
   const [persons, setPersons] = useState([])
 
   useEffect(() => {
-    fetchPersons(setPersons)
+    json_server.getAll()
+      .then(response => {
+        setPersons(response.data)
+      })
   }, [])
 
   const [newName, setNewName] = useState('')
@@ -67,9 +65,12 @@ const App = () => {
         return;
     }
 
-    let newPersons = [...persons]
-    newPersons.push({ name: newName, number: newNumber })
-    setPersons(newPersons)
+    json_server.create({ name: newName, number: newNumber, id: (persons.length + 1).toString() })
+      .then(response => {
+        setPersons(prev => prev.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+      })
   }
 
   return (
