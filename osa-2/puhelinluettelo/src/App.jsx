@@ -55,6 +55,10 @@ const App = () => {
   
   const addPerson = (e) => {
     e.preventDefault()
+	
+	if (newName === "" || newNumber === "") {
+      return
+    }
     
     if (persons.find((person) => person.name === newName)) {
         alert(`${newName} is already added to the phonebook`);
