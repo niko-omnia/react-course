@@ -9,7 +9,7 @@ morgan.token("body", (req) => {
 });
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
 
-const persons = [
+let persons = [
   {
     "name": "Arto Hellas",
     "number": "040-123456",
@@ -49,6 +49,19 @@ app.post('/api/persons', (req, res) => {
   return res.status(201).json(persons);
 });
 
+app.put('/api/persons/:id', (req, res) => {
+  const { id } = req.params;
+  const { number } = req.body;
+
+  if (!number || number === "") return res.status(400).json({error: "Number is required to update!"});
+
+  const person = persons.find((p) => p.id === id);
+  if (!person) return res.status(400).json({error: "Invalid id!"});
+
+  persons = persons.map(p => p.id === id ? { ...p, number } : p)
+  return res.sendStatus(200);
+});
+
 app.get('/api/persons/:id', (req, res) => {
   const { id } = req.params;
   const person = persons.find((p) => p.id === id);
@@ -73,7 +86,7 @@ app.delete('/api/persons/:id', (req, res) => {
 });
 
 app.get('/api/info', (req, res) => {
-  return res.send(`Phonebook has info for ${persons.length} people.<br></br>${new Date(Date.now())}`);
+  return res.status(200).send(`Phonebook has info for ${persons.length} people.<br></br>${new Date(Date.now())}`);
 });
 
 const PORT = 3001;
