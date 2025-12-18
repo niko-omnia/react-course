@@ -49,6 +49,17 @@ app.post('/api/persons', (req, res) => {
   return res.status(201).json(persons);
 });
 
+app.get('/api/persons/:id', (req, res) => {
+  const { id } = req.params;
+  const person = persons.find((p) => p.id === id);
+  
+  if (person) {
+    return res.status(200).json(person);
+  } else {
+    return res.sendStatus(404);
+  }
+});
+
 app.delete('/api/persons/:id', (req, res) => {
   const { id } = req.params;
   const index = persons.findIndex(p => p.id === id);
@@ -62,7 +73,7 @@ app.delete('/api/persons/:id', (req, res) => {
 });
 
 app.get('/api/info', (req, res) => {
-  res.send(`Phonebook has info for ${persons.length} people.<br></br>${new Date(Date.now())}`);
+  return res.send(`Phonebook has info for ${persons.length} people.<br></br>${new Date(Date.now())}`);
 });
 
 const PORT = 3001;
