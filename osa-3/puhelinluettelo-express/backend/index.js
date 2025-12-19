@@ -35,7 +35,7 @@ let persons = [
 ];
 
 app.get('/api/persons', (req, res) => {
-  res.send(persons);
+  res.status(200).json(persons);
 });
 app.post('/api/persons', (req, res) => {
   if (!req.body.name || !req.body.number) return res.status(400).json({ error: 'name & number fields are required' });
