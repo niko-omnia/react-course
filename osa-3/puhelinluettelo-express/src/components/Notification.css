@@ -1,0 +1,20 @@
+:root {
+    --success-color: green;
+    --error-color: red;
+}
+
+.success,
+.error {
+    width: 25%;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    text-align: center;
+}
+.error {
+    border: 1px var(--error-color) solid;
+    color: var(--error-color);
+}
+.success {
+    border: 1px var(--success-color) solid;
+    color: var(--success-color);
+}
