@@ -1,6 +1,23 @@
 const blogRouter = require("express").Router();
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const Blog = require("../models/blog");
 const User = require("../models/user");
+
+function getTokenFromRequest(request) {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '')
+    }
+    return null
+}
+
+async function getUserFromRequest(req) {
+    const decodedToken = jwt.verify(getTokenFromRequest(req), process.env.JWT_SECRET)
+    if (!decodedToken.id) return null;
+    return await User.findById(decodedToken.id) || null;
+}
 
 blogRouter.get('/api/blogs', async (req, res) => {   
     const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
@@ -24,14 +41,18 @@ blogRouter.get('/api/blogs', async (req, res) => {
 blogRouter.post('/api/blogs', async (req, res) => {
     if (!req.body.title || !req.body.url) return res.sendStatus(400);
 
-    const creator = await User.findOne({}); 
+    const user = await getUserFromRequest(req);
 
+    if (!user) {
+        return res.status(400).json({ error: 'UserId missing or not valid' })
+    }
+    
     const blogData = {
         title: req.body.title,
         author: req.body.author || "",
         url: req.body.url,
         likes: req.body.likes || 0,
-        user: creator._id
+        user: user._id
     };
 
     const blog = new Blog(blogData);
