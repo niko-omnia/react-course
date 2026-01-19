@@ -5,12 +5,28 @@ const mongoose = require('mongoose');
 
 const app = require('../app');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const config = require('../utils/config');
 
 const api = supertest(app);
 
-async function createBlog(data) {
-    return await api.post("/api/blogs").send(data);
+async function createAdminAccount() {
+    if (await User.findOne({ name: "admin", username: "admin" })) return;
+    return await api.post("/api/users").send({
+        "username": "admin",
+        "name": "admin",
+        "password": "admin"
+    });
+}
+async function loginAndGetToken(username, password) {
+    const response = await api.post("/api/login").send({ username, password });
+    if (response && response.ok && response.body && response.body.token) {
+        return response.body.token;
+    }
+    return null;
+}
+async function createBlog(data, token) {
+    return await api.post("/api/blogs").send(data).set('Authorization', `Bearer ${token}`);
 }
 async function getBlogs() {
     return await api.get("/api/blogs");
@@ -18,11 +34,11 @@ async function getBlogs() {
 async function findBlog(data) {
     return await Blog.findOne(data);
 }
-async function editBlog(id, data) {
-    return await api.patch(`/api/blogs/${id}`).send(data);
+async function editBlog(id, data, token) {
+    return await api.patch(`/api/blogs/${id}`).send(data).set('Authorization', `Bearer ${token}`);
 }
-async function deleteBlogById(id) {
-    return await api.delete(`/api/blogs/${id}`);
+async function deleteBlogById(id, token) {
+    return await api.delete(`/api/blogs/${id}`).set('Authorization', `Bearer ${token}`);
 }
 async function deleteBlog(blog) {
     return await blog.deleteOne();
@@ -52,6 +68,7 @@ describe('API tests - Blogs', () => {
 
     beforeEach(async () => {
         await mongoose.connect(config.MONGODB_URI);
+        await createAdminAccount();
     });
 
     test('all blogs are returned', async () => {
@@ -70,6 +87,8 @@ describe('API tests - Blogs', () => {
     });
 
     test('blog add success', async () => {
+        const token = await loginAndGetToken("admin", "admin");
+
         const newBlog = {
             title: "New blog",
             author: "Nobody knows",
@@ -77,7 +96,7 @@ describe('API tests - Blogs', () => {
             likes: 0
         };
 
-        const response = await createBlog(newBlog);
+        const response = await createBlog(newBlog, token);
         assert.strictEqual(response.ok, true, "Failed to create new item!");
 
         const response2 = await getBlogs();
@@ -90,13 +109,15 @@ describe('API tests - Blogs', () => {
     });
 
     test('blog with null likes given is set to 0 likes', async () => {
+        const token = await loginAndGetToken("admin", "admin");
+
         const newBlog = {
             title: "New blog",
             author: "Nobody knows",
             url: "https://github.com"
         };
 
-        const response = await createBlog(newBlog);
+        const response = await createBlog(newBlog, token);
         assert.strictEqual(response.ok, true, "Failed to create new item!");
 
         const response2 = await getBlogs();
@@ -113,23 +134,25 @@ describe('API tests - Blogs', () => {
         test('blog edit works', async () => {
             const response = await editBlog(addedBlog._id, {
                 likes: 10
-            });
+            }, token);
             assert.strictEqual(response.status, 200);
             assert.ok(response.body, "blog was not updated");
             assert.ok(response.body.likes && response.body.likes === 10, "likes do not match to expected value when updated");
         });
 
         test('blog deletion works', async () => {
-            const response = await deleteBlogById(addedBlog._id);
+            const response = await deleteBlogById(addedBlog._id, token);
             assert.strictEqual(response.status, 204);
         });
     });
 
     test('bad blog creation request receives status 400', async () => {
+        const token = await loginAndGetToken("admin", "admin");
+
         const response = await createBlog({
             author: "someone",
             likes: 999
-        });
+        }, token);
         assert.strictEqual(response.status, 400);
     });
 

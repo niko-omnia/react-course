@@ -1,7 +1,4 @@
 const blogRouter = require("express").Router();
-require("dotenv").config();
-
-const { getUserFromToken } = require("../utils/middleware");
 const Blog = require("../models/blog");
 
 blogRouter.get('/api/blogs', async (req, res) => {   
@@ -25,17 +22,15 @@ blogRouter.get('/api/blogs', async (req, res) => {
 
 blogRouter.post('/api/blogs', async (req, res) => {
     if (!req.token) return res.status(401).json({ error: "token missing or invalid" });
+    if (!req.user || !req.user._id) return res.status(400).json({ error: 'invalid user' });
     if (!req.body.title || !req.body.url) return res.sendStatus(400);
-
-    const user = await getUserFromToken(req.token);
-    if (!user) return res.status(400).json({ error: 'invalid user' })
     
     const blogData = {
         title: req.body.title,
         author: req.body.author || "",
         url: req.body.url,
         likes: req.body.likes || 0,
-        user: user._id
+        user: req.user._id
     };
 
     const blog = new Blog(blogData);
@@ -47,25 +42,36 @@ blogRouter.post('/api/blogs', async (req, res) => {
 });
 
 blogRouter.patch("/api/blogs/:id", async (req, res) => {
-    const blogId = req.params.id || null;
-    if (!blogId) return res.sendStatus(400);
+    if (!req.token) return res.status(401).json({ error: "token missing or invalid" });
+    if (!req.user || !req.user._id) return res.status(401).json({ error: 'invalid user' });
 
     const { likes } = req.body;
-    if (!likes) return res.sendStatus(400);
+    if (likes === undefined) return res.status(400).json({ error: "Likes missing" });
 
-    const updatedBlog = await Blog.findByIdAndUpdate(
-        blogId,
-        { likes },
-        { new: true, runValidators: true }
-    );
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ error: "Blog does not exist!" });
 
-    if (updatedBlog) return res.status(200).json(updatedBlog);
-    return res.sendStatus(404);
+    if (!blog.user.equals(req.user._id)) {
+        return res.status(401).json({ error: "You do not have permission to edit this blog!" });
+    }
+
+    blog.likes = likes;
+    const updatedBlog = await blog.save();
+    
+    return res.status(200).json(updatedBlog);
 });
 
 blogRouter.delete('/api/blogs/:id', async (req, res) => {
+    if (!req.token) return res.status(401).json({ error: "token missing or invalid" });
+    if (!req.user || !req.user._id) return res.status(400).json({ error: 'invalid user' });
+    
     const blogId = req.params.id || null;
     if (!blogId) return res.sendStatus(400);
+
+    const blogData = await Blog.findOne({ _id: blogId });
+
+    if (!blogData) return res.status(404).json({ error: "Blog does not exist or has already been removed." });
+    if (!blogData.user.equals(req.user._id)) return res.status(401).json({ error: "You do not have permissions to remove this blog!" });
 
     const result = await Blog.findByIdAndDelete(blogId);
     if (result) return res.sendStatus(204);

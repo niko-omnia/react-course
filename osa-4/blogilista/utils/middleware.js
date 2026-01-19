@@ -30,15 +30,30 @@ const tokenExtractor = (req, res, next) => {
     next();
 };
 
-async function getUserFromToken(token) {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decodedToken.id) return null;
-    return await User.findById(decodedToken.id) || null;
-}
+const userExtractor = async (req, res, next) => {
+    if (!req.token) {
+        req.user = null;
+        return next();
+    }
+
+    try {
+        const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+        if (!decodedToken.id) {
+            req.user = null;
+            return next();
+        }
+
+        req.user = await User.findById(decodedToken.id) || null;
+        return next();
+    } catch (e) {}
+    
+    req.user = null;
+    return next();
+};
 
 module.exports = {
     unknownEndpoint,
     errorHandler,
     tokenExtractor,
-    getUserFromToken
+    userExtractor
 };

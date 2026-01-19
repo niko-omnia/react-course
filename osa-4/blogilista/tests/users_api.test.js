@@ -29,7 +29,7 @@ describe('API tests - Users', () => {
         const addedUser = await User.findOne({ id: response.body._id });
         assert.ok(addedUser, 'user was not created');
         
-        await addedUser.deleteOne();
+        await User.deleteOne({ username: "test123" });
     });
     test('invalid user creation fails', async () => {
         const response = await createUser({

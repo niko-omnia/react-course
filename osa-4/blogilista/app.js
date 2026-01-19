@@ -29,6 +29,7 @@ app.use(cors({
 }));
 
 app.use(middleware.tokenExtractor);
+app.use(middleware.userExtractor);
 
 app.use(blogRouter);
 app.use(userRouter);
