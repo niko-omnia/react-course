@@ -26,4 +26,45 @@ function favouriteBlog(blogs) {
     return favorite;
 }
 
-module.exports = { dummy, totalLikes, favouriteBlog };
+function mostBlogs(blogs) {
+    if (!blogs || blogs.length === 0) return null;
+    let totalBlogs = {};
+
+    for (const blog of blogs) {
+        totalBlogs[blog.author] = (totalBlogs[blog.author] || 0) + 1;
+    }
+
+    let mostBlogs = null;
+    Object.keys(totalBlogs).forEach((author) => {
+        if (!mostBlogs || totalBlogs[author] > totalBlogs[mostBlogs]) {
+            mostBlogs = author;
+        }
+    });
+    
+    return {
+        author: mostBlogs,
+        blogs: totalBlogs[mostBlogs]
+    };
+}
+function mostLikes(blogs) {
+    if (!blogs || blogs.length === 0) return null;
+    let totalLikes = {};
+
+    for (const blog of blogs) {
+        totalLikes[blog.author] = (totalLikes[blog.author] || 0) + (blog.likes || 0);
+    }
+
+    let mostLikes = null;
+    Object.keys(totalLikes).forEach((author) => {
+        if (!mostLikes || totalLikes[author] > totalLikes[mostLikes]) {
+            mostLikes = author;
+        }
+    });
+    
+    return {
+        author: mostLikes,
+        likes: totalLikes[mostLikes]
+    };
+}
+
+module.exports = { dummy, totalLikes, favouriteBlog, mostBlogs, mostLikes };
