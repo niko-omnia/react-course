@@ -28,7 +28,7 @@ async function deleteBlog(blog) {
     return await blog.deleteOne();
 }
 
-describe('API tests', () => {
+describe('API tests - Blogs', () => {
     const initialBlogs = [
         {
             "title": "Something",
