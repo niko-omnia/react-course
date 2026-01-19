@@ -28,6 +28,8 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(middleware.tokenExtractor);
+
 app.use(blogRouter);
 app.use(userRouter);
 app.use(loginRouter);
