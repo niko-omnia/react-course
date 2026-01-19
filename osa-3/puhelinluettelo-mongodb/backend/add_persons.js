@@ -1,7 +1,7 @@
 const { connection, person } = require('./mongo');
 const mongodb = {
-    connection: connection,
-    person: person
+  connection: connection,
+  person: person
 };
 
 let persons_list = [
@@ -24,13 +24,13 @@ let persons_list = [
 ];
 
 async function add_persons() {
-    await mongodb.connection.start();
-    for (const person of persons_list) {
-        if (await mongodb.person.findByName(person.name)) continue;
-        await mongodb.person.create(person.name, person.number);
-    }
+  await mongodb.connection.start();
+  for (const person of persons_list) {
+    if (await mongodb.person.findByName(person.name)) continue;
+    await mongodb.person.create(person.name, person.number);
+  }
 }
 
 (async () => {
-    await add_persons();
+  await add_persons();
 })();
