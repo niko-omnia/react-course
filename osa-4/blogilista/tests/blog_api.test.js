@@ -33,11 +33,12 @@ describe('API tests', () => {
 
     beforeEach(async () => {
         await mongoose.connect(config.MONGODB_URI);
-        await Blog.deleteMany({});
-        await Blog.insertMany(initialBlogs);
     });
 
     test('all blogs are returned', async () => {
+        await Blog.deleteMany({});
+        await Blog.insertMany(initialBlogs);
+
         const response = await api.get('/api/blogs');
         assert.strictEqual(response.body.length, initialBlogs.length);
     });
@@ -95,7 +96,20 @@ describe('API tests', () => {
         });
         assert.ok(addedBlog, 'Blog was not added');
 
-        await addedBlog.deleteOne();
+        test('blog edit works', async () => {
+            const response = await api.patch(`/api/blogs/${addedBlog._id}`).send({
+                likes: 10
+            });
+            assert.strictEqual(response.status, 200);
+
+            assert.ok(response.body, "blog was not updated");
+            assert.ok(response.body.likes && response.body.likes === 10, "likes do not match to expected value when updated");
+        });
+
+        test('blog deletion works', async () => {
+            const response = await api.delete(`/api/blogs/${addedBlog._id}`);
+            assert.strictEqual(response.status, 204);
+        });
     });
 
     test('bad blog creation request receives status 400', async () => {

@@ -21,4 +21,30 @@ blogRouter.post('/api/blogs', async (req, res) => {
     return res.status(201).json(result);
 });
 
+blogRouter.patch("/api/blogs/:id", async (req, res) => {
+    const blogId = req.params.id || null;
+    if (!blogId) return res.sendStatus(400);
+
+    const { likes } = req.body;
+    if (!likes) return res.sendStatus(400);
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+        blogId,
+        { likes },
+        { new: true, runValidators: true }
+    );
+
+    if (updatedBlog) return res.status(200).json(updatedBlog);
+    return res.sendStatus(404);
+});
+
+blogRouter.delete('/api/blogs/:id', async (req, res) => {
+    const blogId = req.params.id || null;
+    if (!blogId) return res.sendStatus(400);
+
+    const result = await Blog.findByIdAndDelete(blogId);
+    if (result) return res.sendStatus(204);
+    return res.sendStatus(404);
+});
+
 module.exports = blogRouter;
