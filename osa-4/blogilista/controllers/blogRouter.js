@@ -7,7 +7,7 @@ blogRouter.get('/api/blogs', async (req, res) => {
 });
 
 blogRouter.post('/api/blogs', async (req, res) => {
-    const blog = new Blog(request.body);
+    const blog = new Blog(req.body);
     const result = await blog.save();
     return res.status(201).json(result);
 });

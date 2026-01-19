@@ -42,6 +42,38 @@ describe('API tests', () => {
         assert.strictEqual(response.body.length, initialBlogs.length);
     });
 
+    test('all blogs have an id', async () => {
+        const response = await api.get('/api/blogs');
+        for (const blog of response.body) {    
+            assert.ok(blog.id && blog.id.length > 0);
+        }
+    });
+
+    test('blog add success', async () => {
+        const newBlog = {
+            title: "New blog",
+            author: "Nobody knows",
+            url: "https://github.com",
+            likes: 0
+        };
+
+        const response = await api.post("/api/blogs").send(newBlog);
+        assert.strictEqual(response.ok, true, "Failed to create new item!");
+
+        const response2 = await api.get("/api/blogs");
+        assert.strictEqual(response2.body.length, initialBlogs.length + 1, "New blog was not created");
+
+        const addedBlog = await Blog.findOne({
+            title: newBlog.title,
+            author: newBlog.author,
+            url: newBlog.url,
+            likes: newBlog.likes
+        });
+        assert.ok(addedBlog, 'Blog was not saved with exact data');
+
+        await addedBlog.deleteOne();
+    });
+
     after(async () => {
         await mongoose.connection.close();
     });
