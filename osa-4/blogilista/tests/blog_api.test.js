@@ -74,6 +74,39 @@ describe('API tests', () => {
         await addedBlog.deleteOne();
     });
 
+    test('blog with null likes given is set to 0 likes', async () => {
+        const newBlog = {
+            title: "New blog",
+            author: "Nobody knows",
+            url: "https://github.com"
+        };
+
+        const response = await api.post("/api/blogs").send(newBlog);
+        assert.strictEqual(response.ok, true, "Failed to create new item!");
+
+        const response2 = await api.get("/api/blogs");
+        assert.strictEqual(response2.body.length, initialBlogs.length + 1, "New blog was not created");
+
+        const addedBlog = await Blog.findOne({
+            title: newBlog.title,
+            author: newBlog.author,
+            url: newBlog.url,
+            likes: 0
+        });
+        assert.ok(addedBlog, 'Blog was not added');
+
+        await addedBlog.deleteOne();
+    });
+
+    test('bad blog creation request receives status 400', async () => {
+        const newBlog = {
+            author: "someone",
+            likes: 999
+        };
+        const response = await api.post("/api/blogs").send(newBlog);
+        assert.strictEqual(response.status, 400);
+    });
+
     after(async () => {
         await mongoose.connection.close();
     });
