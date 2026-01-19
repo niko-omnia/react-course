@@ -9,6 +9,25 @@ const config = require('../utils/config');
 
 const api = supertest(app);
 
+async function createBlog(data) {
+    return await api.post("/api/blogs").send(data);
+}
+async function getBlogs() {
+    return await api.get("/api/blogs");
+}
+async function findBlog(data) {
+    return await Blog.findOne(data);
+}
+async function editBlog(id, data) {
+    return await api.patch(`/api/blogs/${id}`).send(data);
+}
+async function deleteBlogById(id) {
+    return await api.delete(`/api/blogs/${id}`);
+}
+async function deleteBlog(blog) {
+    return await blog.deleteOne();
+}
+
 describe('API tests', () => {
     const initialBlogs = [
         {
@@ -39,12 +58,12 @@ describe('API tests', () => {
         await Blog.deleteMany({});
         await Blog.insertMany(initialBlogs);
 
-        const response = await api.get('/api/blogs');
+        const response = await getBlogs();
         assert.strictEqual(response.body.length, initialBlogs.length);
     });
 
     test('all blogs have an id', async () => {
-        const response = await api.get('/api/blogs');
+        const response = await getBlogs();
         for (const blog of response.body) {    
             assert.ok(blog.id && blog.id.length > 0);
         }
@@ -58,21 +77,16 @@ describe('API tests', () => {
             likes: 0
         };
 
-        const response = await api.post("/api/blogs").send(newBlog);
+        const response = await createBlog(newBlog);
         assert.strictEqual(response.ok, true, "Failed to create new item!");
 
-        const response2 = await api.get("/api/blogs");
+        const response2 = await getBlogs();
         assert.strictEqual(response2.body.length, initialBlogs.length + 1, "New blog was not created");
 
-        const addedBlog = await Blog.findOne({
-            title: newBlog.title,
-            author: newBlog.author,
-            url: newBlog.url,
-            likes: newBlog.likes
-        });
+        const addedBlog = await findBlog(newBlog);
         assert.ok(addedBlog, 'Blog was not saved with exact data');
 
-        await addedBlog.deleteOne();
+        await deleteBlog(addedBlog);
     });
 
     test('blog with null likes given is set to 0 likes', async () => {
@@ -82,13 +96,13 @@ describe('API tests', () => {
             url: "https://github.com"
         };
 
-        const response = await api.post("/api/blogs").send(newBlog);
+        const response = await createBlog(newBlog);
         assert.strictEqual(response.ok, true, "Failed to create new item!");
 
-        const response2 = await api.get("/api/blogs");
+        const response2 = await getBlogs();
         assert.strictEqual(response2.body.length, initialBlogs.length + 1, "New blog was not created");
 
-        const addedBlog = await Blog.findOne({
+        const addedBlog = await findBlog({
             title: newBlog.title,
             author: newBlog.author,
             url: newBlog.url,
@@ -97,27 +111,25 @@ describe('API tests', () => {
         assert.ok(addedBlog, 'Blog was not added');
 
         test('blog edit works', async () => {
-            const response = await api.patch(`/api/blogs/${addedBlog._id}`).send({
+            const response = await editBlog(addedBlog._id, {
                 likes: 10
             });
             assert.strictEqual(response.status, 200);
-
             assert.ok(response.body, "blog was not updated");
             assert.ok(response.body.likes && response.body.likes === 10, "likes do not match to expected value when updated");
         });
 
         test('blog deletion works', async () => {
-            const response = await api.delete(`/api/blogs/${addedBlog._id}`);
+            const response = await deleteBlogById(addedBlog._id);
             assert.strictEqual(response.status, 204);
         });
     });
 
     test('bad blog creation request receives status 400', async () => {
-        const newBlog = {
+        const response = await createBlog({
             author: "someone",
             likes: 999
-        };
-        const response = await api.post("/api/blogs").send(newBlog);
+        });
         assert.strictEqual(response.status, 400);
     });
 
