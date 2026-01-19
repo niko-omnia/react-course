@@ -126,14 +126,21 @@ const App = () => {
       return;
     }
 
+    console.log("Create");
     mongo_server.create({ name: newName, number: newNumber })
-      .then(response => {
+      .then((response) => {
         setPersons(prev => [...prev, response.data]);
         setSuccessMessage(`Added "${newName}" to the phonebook`);
         timeoutClear(setSuccessMessage, 5000);
         setNewName('');
         setNewNumber('');
+      }).catch(async (req) => {
+        if (req && req.response && req.response.data && req.response.data.error) {
+          setErrorMessage(req.response.data.error.message);
+          timeoutClear(setErrorMessage, 5000);
+        }
       });
+    console.log("done!");
   }
 
   return (

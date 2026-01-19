@@ -1,10 +1,30 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Person = mongoose.model('Person', new mongoose.Schema({
-    name: String,
-    number: String
-}));
+const personSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /^[A-Za-zåäöÅÄÖ-]{3,}$/.test(v);
+            },
+            message: props => props.value.length < 3 ? `"${props.value}" is shorter than the minimum allowed length (3).` : `${props.value} is not a valid name!`
+        },
+        required: [true, "Person name is required"]
+    },
+    number: {
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /^[0-9+-]+$/.test(v);
+            },
+            message: props => `"${props.value}" is not a valid phone number!`
+        },
+        required: [true, "Person phone number is required"]
+    },
+});
+
+const Person = mongoose.model('Person', personSchema);
 
 async function startConnection() {
     mongoose.set('strictQuery', false);

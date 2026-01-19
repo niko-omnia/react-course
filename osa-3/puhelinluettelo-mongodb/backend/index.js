@@ -31,8 +31,12 @@ app.post('/api/persons', async (req, res, next) => {
     const name_exists = await mongodb.person.findByName(name);
     if (name_exists) throw new Error("name must be unique");
 
-    const person = await mongodb.person.create(name, number);
-    return res.status(201).json(person);
+    try {
+      const person = await mongodb.person.create(name, number);
+      return res.status(201).json(person);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
   } catch (err) {
     next(err);
     return res.status(400).json({ error: err });
