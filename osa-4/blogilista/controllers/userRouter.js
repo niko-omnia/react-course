@@ -2,6 +2,7 @@ const usersRouter = require('express').Router();
 const bcrypt = require('bcrypt');
 
 const User = require('../models/user');
+const Blog = require('../models/blog');
 
 usersRouter.post('/api/users', async (req, res) => {
     const { username, name, password } = req.body;
@@ -28,8 +29,30 @@ usersRouter.post('/api/users', async (req, res) => {
 });
 
 usersRouter.get('/api/users', async (req, res) => {
-  const users = await User.find({})
-  return res.json(users)
-})
+    const users = await User.find({});
+
+    const usersWithBlogs = await Promise.all(
+        users.map(async (user) => {
+            const blogs = await Blog.find({ user: user._id }).populate('user', { username: 1, name: 1 });
+            
+            const final_blogs = blogs.map(blog => ({
+                title: blog.title,
+                author: blog.author,
+                url: blog.url,
+                likes: blog.likes,
+                id: blog._id
+            }));
+
+            return {
+                username: user.username,
+                name: user.name,
+                id: user._id,
+                blogs: final_blogs
+            };
+        })
+    );
+
+    return res.json(usersWithBlogs);
+});
 
 module.exports = usersRouter;
