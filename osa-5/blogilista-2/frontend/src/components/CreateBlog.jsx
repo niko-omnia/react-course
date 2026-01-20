@@ -36,18 +36,27 @@ export default function CreateBlog({ updateBlogs }) {
                     return;
                 }
 
-                const response = await blogService.createBlog({
-                    title: data.title,
-                    author: data.author,
-                    url: data.url
-                });
+                try {
+                    const response = await blogService.createBlog({
+                        title: data.title,
+                        author: data.author,
+                        url: data.url
+                    });
 
-                if (response && response.id) {
-                    setNotification(`New blog "${data.title}" by ${data.author} was added!`);
-                    await updateBlogs();
-                } else {
-                    setNotification("Failed to create blog!");
+                    if (response && response.id) {
+                        setNotification(`New blog "${data.title}" by ${data.author} was added!`);
+                        await updateBlogs();
+                    } else {
+                        setNotification("Failed to create blog!");
+                    }
+                } catch (response) {
+                    setNotification(
+                        response && response.response && response.response.data && response.response.data.error
+                        ? response.response.data.error
+                        : "Failed to create blog!"
+                    );
                 }
+                
             }}>
                 <input required name="title" type="text" placeholder="Title"></input>
                 <input required name="author" type="text" placeholder="Author"></input>

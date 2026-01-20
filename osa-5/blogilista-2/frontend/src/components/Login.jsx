@@ -40,6 +40,8 @@ export default function Login() {
                     const response = await authService.login(data.username, data.password);
                     if (response && response.id && response.token) {
                         window.location.reload();
+                    } else {
+                        setNotification("Failed to login!");
                     }
                 } catch (response) {
                     setNotification(
