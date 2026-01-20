@@ -1,32 +1,41 @@
-import globals from 'globals';
 import js from '@eslint/js';
-import stylisticJs from '@stylistic/eslint-plugin-js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
-  js.configs.recommended,
+  { ignores: ['dist', 'eslint.config.js', 'vite.config.js', '.gitignore', 'node_modules', 'package.json', 'package-lock.json'] },
   {
-    files: ['**/*.js'],
+    files: ['**/*.{js,jsx}'],
     languageOptions: {
-      sourceType: 'module',
-      globals: { ...globals.node },
-      ecmaVersion: 'latest',
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module'
+      }
     },
     plugins: {
-      '@stylistic/js': stylisticJs,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh
     },
     rules: {
-      '@stylistic/js/indent': ['error', 2],
-      '@stylistic/js/linebreak-style': ['error', 'unix'],
-      '@stylistic/js/quotes': ['error', 'single'],
-      '@stylistic/js/semi': ['error', 'never'],
+      ...js.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
       eqeqeq: 'error',
-      'no-trailing-spaces': 'error',
-      'object-curly-spacing': ['error', 'always'],
-      'arrow-spacing': ['error', { before: true, after: true }],
-      'no-console': 'off',
-    },
-  },
-  {
-    ignores: ['dist/**', 'node_modules/**'],
-  },
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      indent: 'off',
+      quotes: 'off',
+      semi: 'off',
+      'linebreak-style': 'off',
+      'object-curly-spacing': 'off',
+      'no-trailing-spaces': 'off',
+
+      // sanity
+      'no-console': 'off'
+    }
+
+  }
 ];
