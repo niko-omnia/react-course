@@ -10,4 +10,9 @@ async function createBlog(data) {
   return request.data;
 }
 
-export default { getBlogs, createBlog };
+async function updateLikes(blogId, likes) {
+  const request = await axios.patch(`/api/blogs/${blogId}`, { likes });
+  return request.data;
+}
+
+export default { getBlogs, createBlog, updateLikes };

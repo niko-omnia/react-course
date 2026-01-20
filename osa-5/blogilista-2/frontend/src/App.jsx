@@ -64,7 +64,7 @@ const App = () => {
 
   if (!userInfo.id) return null;
   return (
-    <div>
+    <div className="main">
       <h2>blogs</h2>
       <Notification text={notificationText} />
       <p>{userInfo.name} logged in <button onClick={async () => {
