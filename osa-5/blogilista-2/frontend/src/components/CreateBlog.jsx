@@ -3,27 +3,10 @@ import { useState } from "react";
 import blogService from "../services/blogs";
 import Notification from "./Notification";
 
-export default function CreateBlog({ updateBlogs }) {
-    const [notificationText, setNotificationText] = useState("");
-    const [currentTimeout, setCurrentTimeout] = useState(null);
-
-    function setNotification(text) {
-        if (currentTimeout) {
-            clearTimeout(currentTimeout);
-            setCurrentTimeout(null);
-        }
-
-        setNotificationText(text);
-        const createdTimeout = setTimeout(() => {
-            setNotificationText("");
-        }, 5000);
-        setCurrentTimeout(createdTimeout);
-    }
-    
+export default function CreateBlog({ setVisible, updateBlogs, setNotification }) {
     return (
         <div>
-            <h2>Create New Blog</h2>
-            <Notification text={notificationText} />
+            <h2>Create Blog</h2>
             <form onSubmit={async (e) => {
                 e.preventDefault(); // Prevent location change
 
@@ -56,12 +39,13 @@ export default function CreateBlog({ updateBlogs }) {
                         : "Failed to create blog!"
                     );
                 }
-                
+                setVisible(false);
             }}>
                 <input required name="title" type="text" placeholder="Title"></input>
                 <input required name="author" type="text" placeholder="Author"></input>
                 <input required name="url" type="text" placeholder="URL"></input>
                 <input type="submit" value="Create"></input>
+                <button onClick={() => { setVisible(false); }}>Cancel</button>
             </form>
         </div>
     )

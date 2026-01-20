@@ -6,12 +6,30 @@ import authService from './services/auth';
 import CreateBlog from './components/CreateBlog';
 import Blog from './components/Blog';
 import Login from './components/Login';
+import Notification from './components/Notification';
 
-import { getLocalData, setLocalData } from './assets/simpleStorage';
+import { setLocalData } from './assets/simpleStorage';
 
 const App = () => {
   const [userInfo, setUserInfo] = useState({});
   const [blogs, setBlogs] = useState([]);
+  const [createBlogVisible, setCreteBlogVisible] = useState(false);
+
+  const [notificationText, setNotificationText] = useState("");
+  const [currentTimeout, setCurrentTimeout] = useState(null);
+
+  function setNotification(text) {
+      if (currentTimeout) {
+          clearTimeout(currentTimeout);
+          setCurrentTimeout(null);
+      }
+
+      setNotificationText(text);
+      const createdTimeout = setTimeout(() => {
+          setNotificationText("");
+      }, 5000);
+      setCurrentTimeout(createdTimeout);
+  }
 
   async function fetchUserInfo() {
     const userInfo = await authService.getUserInfo();
@@ -46,12 +64,18 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Notification text={notificationText} />
       <p>{userInfo.name} logged in <button onClick={async () => {
         await authService.logout();
         window.location.reload();
       }}>Logout</button></p>
       
-      <CreateBlog updateBlogs={getBlogs} />
+      {
+        !createBlogVisible
+        ? <button onClick={() => { setCreteBlogVisible(true) }}>Create New Blog</button>
+        : <CreateBlog setVisible={setCreteBlogVisible} updateBlogs={getBlogs} setNotification={setNotification} />
+      }
+      
 
       {blogs.map(blog => (
         <Blog key={blog.id} blog={blog} />
