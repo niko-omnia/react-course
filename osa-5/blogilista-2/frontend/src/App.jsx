@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import blogService from './services/blogs';
 import authService from './services/auth';
 
+import CreateBlog from './components/CreateBlog';
 import Blog from './components/Blog';
 import Login from './components/Login';
+
+import { getLocalData, setLocalData } from './assets/simpleStorage';
 
 const App = () => {
   const [userInfo, setUserInfo] = useState({});
@@ -14,9 +17,11 @@ const App = () => {
     const userInfo = await authService.getUserInfo();
     if (userInfo && userInfo.id) {
       setUserInfo(userInfo);
+      setLocalData("auth", userInfo);
       return;
     }
     setUserInfo({ id: null });
+    setLocalData("auth", null);
   }
   
   async function getBlogs() {
@@ -45,6 +50,9 @@ const App = () => {
         await authService.logout();
         window.location.reload();
       }}>Logout</button></p>
+      
+      <CreateBlog />
+
       {blogs.map(blog => (
         <Blog key={blog.id} blog={blog} />
       ))}
