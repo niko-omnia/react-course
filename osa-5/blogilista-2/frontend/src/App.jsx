@@ -8,6 +8,8 @@ import Blog from './components/Blog';
 import Login from './components/Login';
 import Notification from './components/Notification';
 
+import "./assets/main.css";
+
 import { setLocalData } from './assets/simpleStorage';
 
 const App = () => {
