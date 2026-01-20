@@ -1,9 +1,29 @@
-import blogService from "../services/blogs";
+import { useState } from "react";
 
-export default function CreateBlog() {
+import blogService from "../services/blogs";
+import Notification from "./Notification";
+
+export default function CreateBlog({ updateBlogs }) {
+    const [notificationText, setNotificationText] = useState("");
+    const [currentTimeout, setCurrentTimeout] = useState(null);
+
+    function setNotification(text) {
+        if (currentTimeout) {
+            clearTimeout(currentTimeout);
+            setCurrentTimeout(null);
+        }
+
+        setNotificationText(text);
+        const createdTimeout = setTimeout(() => {
+            setNotificationText("");
+        }, 5000);
+        setCurrentTimeout(createdTimeout);
+    }
+    
     return (
         <div>
             <h2>Create New Blog</h2>
+            <Notification text={notificationText} />
             <form onSubmit={async (e) => {
                 e.preventDefault(); // Prevent location change
 
@@ -12,7 +32,7 @@ export default function CreateBlog() {
                 let data = Object.fromEntries(formData.entries());
 
                 if (!data.title || !data.author || !data.url) {
-                    alert("Please fill all the fields before logging in!");
+                    setNotification("Please fill all the fields before logging in!");
                     return;
                 }
 
@@ -23,10 +43,10 @@ export default function CreateBlog() {
                 });
 
                 if (response && response.id) {
-                    alert("Blog created!");
-                    window.location.reload();
+                    setNotification(`New blog "${data.title}" by ${data.author} was added!`);
+                    await updateBlogs();
                 } else {
-                    alert("Failed to create blog!");
+                    setNotification("Failed to create blog!");
                 }
             }}>
                 <input required name="title" type="text" placeholder="Title"></input>

@@ -51,7 +51,7 @@ const App = () => {
         window.location.reload();
       }}>Logout</button></p>
       
-      <CreateBlog />
+      <CreateBlog updateBlogs={getBlogs} />
 
       {blogs.map(blog => (
         <Blog key={blog.id} blog={blog} />

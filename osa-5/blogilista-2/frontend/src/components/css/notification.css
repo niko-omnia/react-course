@@ -1,0 +1,10 @@
+.notification {
+    --notification-color: green;
+
+    padding: 0.3rem;
+    font-size: 1rem;
+    font-weight: 400;
+    border: 1px var(--notification-color) solid;
+    color: var(--notification-color);
+    text-transform: capitalize;
+}
