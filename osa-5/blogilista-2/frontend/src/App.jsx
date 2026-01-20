@@ -78,8 +78,7 @@ const App = () => {
         : <CreateBlog setVisible={setCreteBlogVisible} updateBlogs={getBlogs} setNotification={setNotification} />
       }
       
-
-      {blogs.map(blog => (
+      {blogs.sort((first, second) => first.likes < second.likes).map(blog => (
         <Blog key={blog.id} blog={blog} />
       ))}
     </div>
