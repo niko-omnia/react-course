@@ -37,6 +37,12 @@ app.use(blogRouter);
 app.use(userRouter);
 app.use(loginRouter);
 
+if (process.env.NODE_ENV === 'test') {
+  console.log("Adding test routes");
+  const testingRouter = require('./controllers/testing');
+  app.use(testingRouter);
+}
+
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
