@@ -50,7 +50,7 @@ describe('blog app login', async () => {
 
 describe('blog app logged in', () => {
     let api = null;
-
+    
     beforeEach(async ({ playwright, request }) => {
         await request.post('http://localhost:5000/api/testing/reset');
         await request.post('http://localhost:5000/api/users', {
@@ -87,7 +87,34 @@ describe('blog app logged in', () => {
 
         expect(response.status()).toBe(201);
 
-        const json = await response.json();
-        expect(json.id).toBeTruthy();
+        const response_json = await response.json();
+        expect(response_json.id).toBeTruthy();
+    });
+
+    test('blog liking works', async () => {
+        const response = await api.post('http://localhost:5000/api/blogs', {
+            data: {
+                title: 'Test Blog',
+                author: 'Test Author',
+                url: 'Test Url'
+            }
+        });
+
+        expect(response.status()).toBe(201);
+
+        const response_json = await response.json();
+        const newBlogId = response_json && response_json.id ? response_json.id : null;
+        
+        expect(newBlogId).toBeTruthy();
+
+        const response2 = await api.patch(`http://localhost:5000/api/blogs/${newBlogId}`, {
+            data: {
+                likes: 10
+            }
+        });
+        expect(response2.status()).toBe(200);
+
+        const response2_json = await response2.json();
+        expect(response2_json.likes).toBe(10);
     });
 });
