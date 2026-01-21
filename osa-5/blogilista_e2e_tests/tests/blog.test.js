@@ -194,7 +194,6 @@ describe('blog app logged in', () => {
         });
 
         page.on('dialog', async dialog => {
-            console.log('Dialog appeared:', dialog.message());
             await dialog.accept();
         });
 
