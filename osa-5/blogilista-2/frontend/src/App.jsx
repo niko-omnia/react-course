@@ -49,6 +49,11 @@ const App = () => {
     if (blogs && blogs.length > 0) setBlogs(blogs);
   }
 
+  async function createBlog(data) {
+    const response = await blogService.createBlog(data);
+    return response;
+  }
+
   async function updateLikes(blog, likes) {
     try {
       const response = await blogService.updateLikes(blog.id, likes + 1);
@@ -83,7 +88,7 @@ const App = () => {
       {
         !createBlogVisible
         ? <button onClick={() => { setCreteBlogVisible(true) }}>Create New Blog</button>
-        : <CreateBlog setVisible={setCreteBlogVisible} updateBlogs={getBlogs} setNotification={setNotification} />
+        : <CreateBlog setVisible={setCreteBlogVisible} createBlog={createBlog} updateBlogs={getBlogs} setNotification={setNotification} />
       }
       
       {blogs.sort((first, second) => first.likes < second.likes).map(blog => (

@@ -1,9 +1,10 @@
 import { useState } from "react";
 
-import blogService from "../services/blogs";
-import Notification from "./Notification";
-
-export default function CreateBlog({ setVisible, updateBlogs, setNotification }) {
+export default function CreateBlog({ setVisible, createBlog, updateBlogs, setNotification }) {
+    const [titleValue, setTitleValue] = useState("");
+    const [authorValue, setAuthorValue] = useState("");
+    const [urlValue, setUrlValue] = useState("");
+    
     return (
         <div>
             <h2>Create Blog</h2>
@@ -20,7 +21,7 @@ export default function CreateBlog({ setVisible, updateBlogs, setNotification })
                 }
 
                 try {
-                    const response = await blogService.createBlog({
+                    const response = await createBlog({
                         title: data.title,
                         author: data.author,
                         url: data.url
@@ -41,9 +42,9 @@ export default function CreateBlog({ setVisible, updateBlogs, setNotification })
                 }
                 setVisible(false);
             }}>
-                <input required name="title" type="text" placeholder="Title"></input>
-                <input required name="author" type="text" placeholder="Author"></input>
-                <input required name="url" type="text" placeholder="URL"></input>
+                <input required value={titleValue} onChange={(e) => setTitleValue(e.target.value)} name="title" type="text" placeholder="Title"></input>
+                <input required value={authorValue} onChange={(e) => setAuthorValue(e.target.value)} name="author" type="text" placeholder="Author"></input>
+                <input required value={urlValue} onChange={(e) => setUrlValue(e.target.value)} name="url" type="text" placeholder="URL"></input>
                 <input type="submit" value="Create"></input>
                 <button onClick={() => { setVisible(false); }}>Cancel</button>
             </form>
