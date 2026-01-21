@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --workers=1",
     "test:report": "playwright show-report"
   },
   "devDependencies": {

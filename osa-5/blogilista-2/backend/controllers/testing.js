@@ -6,7 +6,7 @@ const User = require('../models/user');
 router.post('/api/testing/reset', async (req, res) => {
   await Blog.deleteMany({});
   await User.deleteMany({});
-  res.sendStatus(204);
+  return res.status(204).end();
 });
 
 module.exports = router;
