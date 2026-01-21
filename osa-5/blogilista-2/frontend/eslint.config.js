@@ -32,10 +32,15 @@ export default [
       'linebreak-style': 'off',
       'object-curly-spacing': 'off',
       'no-trailing-spaces': 'off',
-
-      // sanity
       'no-console': 'off'
     }
-
+  },
+  {
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.vitest 
+      }
+    }
   }
 ];
