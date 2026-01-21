@@ -1,7 +1,7 @@
 import { useState } from "react";
 import blogService from '../services/blogs';
 
-export default function Blog({ blog }) {
+export default function Blog({ blog, updateLikes }) {
   if (!blog.user || !blog.user.name) return null;
 
   const [infoVisible, setInfoVisible] = useState(false);
@@ -18,10 +18,8 @@ export default function Blog({ blog }) {
       <div className="blog-info" style={{"display": infoVisible ? "flex" : "none"}}>
         <p>Url: {blog.url}</p>
         <p>Likes: {likes} <button onClick={async () => {
-          try {
-            const response = await blogService.updateLikes(blog.id, likes + 1);
-            if (response && response.likes) setLikes(response.likes);
-          } catch (e) {}
+          const newLikes = await updateLikes(blog, likes);
+          setLikes(newLikes);
         }}>Like</button></p>
         <p>Added by: {blog.user.name}</p>
         <button onClick={async (e) => {

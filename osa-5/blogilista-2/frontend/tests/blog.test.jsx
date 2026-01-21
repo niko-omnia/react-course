@@ -26,14 +26,14 @@ const blogData = {
 
 
 test('renders blog title and author', () => {
-    render(<Blog blog={blogData} />);
+    render(<Blog blog={blogData} updateLikes={() => {}} />);
     
     const expectedText = `${blogData.title} - ${blogData.author}`;
     expect(screen.getByText(expectedText)).toBeInTheDocument();
 });
 
 test('shows url, likes, creator only when view button is pressed', async () => {
-    render(<Blog blog={blogData} />);
+    render(<Blog blog={blogData} updateLikes={() => {}} />);
 
     const expectedTexts = [
         `Likes: ${blogData.likes}`,
@@ -54,4 +54,18 @@ test('shows url, likes, creator only when view button is pressed', async () => {
         const element = screen.getByText(expectedText);
         expect(element).toBeVisible();
     }
+});
+
+test('like button functions properly', async () => {
+    const mockHandler = vi.fn();
+
+    render(<Blog blog={blogData} updateLikes={mockHandler} />);
+    
+    const user = userEvent.setup();
+    const button = screen.getByText('Like');
+    
+    await user.click(button);
+    await user.click(button);
+
+    expect(mockHandler.mock.calls).toHaveLength(2);
 });

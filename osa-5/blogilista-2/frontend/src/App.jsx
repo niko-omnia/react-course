@@ -49,6 +49,14 @@ const App = () => {
     if (blogs && blogs.length > 0) setBlogs(blogs);
   }
 
+  async function updateLikes(blog, likes) {
+    try {
+      const response = await blogService.updateLikes(blog.id, likes + 1);
+      if (response && response.likes) return response.likes;
+    } catch (e) {}
+    return likes;
+  }
+
   useEffect(() => {
     fetchUserInfo();
     getBlogs();
@@ -79,7 +87,7 @@ const App = () => {
       }
       
       {blogs.sort((first, second) => first.likes < second.likes).map(blog => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateLikes={updateLikes} />
       ))}
     </div>
   );
