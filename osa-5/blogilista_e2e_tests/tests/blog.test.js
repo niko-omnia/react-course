@@ -263,10 +263,8 @@ describe('blog app logged in', () => {
         for (let i = 0; i < blogElements.length; i++) {
             const pTexts = await blogElements[i].$$eval('p', ps => ps.map(p => p.textContent));
             const likesLine = pTexts.find(line => line?.startsWith('Likes:'));
-            if (!likesLine) throw new Error(`No likes found in blog ${i}`);
             
             const likes = parseInt(likesLine.replace('Likes:', '').trim(), 10);
-
             expect(likes).toBeLessThanOrEqual(previousLikes);
             previousLikes = likes;
         }
