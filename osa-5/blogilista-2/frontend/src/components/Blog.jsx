@@ -1,7 +1,10 @@
 import { useState } from "react";
 import blogService from '../services/blogs';
 
+import { getLocalData } from '../assets/simpleStorage';
+
 export default function Blog({ blog, updateLikes }) {
+  console.log(blog);
   if (!blog.user || !blog.user.name) return null;
 
   const [infoVisible, setInfoVisible] = useState(false);
@@ -22,21 +25,25 @@ export default function Blog({ blog, updateLikes }) {
           setLikes(newLikes);
         }}>Like</button></p>
         <p>Added by: {blog.user.name}</p>
-        <button onClick={async (e) => {
-          if (!window.confirm(`Delete "${blog.title}" by ${blog.author}?`)) return;
+        {
+          blog.user.id === (getLocalData("auth") || { username: ""}).id
+          ? <button onClick={async (e) => {
+            if (!window.confirm(`Delete "${blog.title}" by ${blog.author}?`)) return;
 
-          try {
-            const deleted = await blogService.deleteBlog(blog.id);
-            if (deleted) {
-              const blogElement = e.target.closest(".blog");
-              if (blogElement) blogElement.remove();
-            } else {
+            try {
+              const deleted = await blogService.deleteBlog(blog.id);
+              if (deleted) {
+                const blogElement = e.target.closest(".blog");
+                if (blogElement) blogElement.remove();
+              } else {
+                alert("Failed to delete blog!");
+              }
+            } catch (response) {
               alert("Failed to delete blog!");
             }
-          } catch (response) {
-            alert("Failed to delete blog!");
-          }
-        }}>Delete</button>
+          }}>Delete</button>
+          : null
+        }
       </div>
     </div>
   );
